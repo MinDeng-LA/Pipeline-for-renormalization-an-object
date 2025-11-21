@@ -1,0 +1,12 @@
+Pipeline for the renormalization of an object
+
+
+Fib <- Fib %>%
+  SCTransform(verbose = TRUE) %>%
+  RunPCA(npcs = 50) %>%
+  FindNeighbors(dims = 1:50) %>%
+  FindClusters(resolution = 0.3) %>%
+  RunUMAP(dims = 1:50)
+
+ElbowPlot(Fib)
+DimPlot(Fib, label = TRUE, cols = my36colors)
