@@ -9,4 +9,5 @@ Fib <- Fib %>%
   RunUMAP(dims = 1:50)
 
 ElbowPlot(Fib)
+ncol(Fib[["pca"]]@cell.embeddings) #check the maxium of PC
 DimPlot(Fib, label = TRUE, cols = my36colors)
