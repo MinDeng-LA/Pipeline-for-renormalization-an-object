@@ -1,6 +1,6 @@
 Pipeline for the renormalization of an object
 
-
+#1
 Fib <- Fib %>%
   SCTransform(verbose = TRUE) %>%
   RunPCA(npcs = 50) %>%
@@ -11,3 +11,31 @@ Fib <- Fib %>%
 ElbowPlot(Fib)
 ncol(Fib[["pca"]]@cell.embeddings) #check the maxium of PC
 DimPlot(Fib, label = TRUE, cols = my36colors)
+
+#2
+ElbowPlot(AcneKeloid_Fibro) 
+stdevs <- Stdev(AcneKeloid_Fibro, reduction = "pca")
+plot(stdevs^2 / sum(stdevs^2), type = "b", xlab = "PC", ylab = "Proportion of Variance Explained")
+#2: choose dims =13
+DimHeatmap(AcneKeloid_Fibro, dims = 1:18, cells = 2000, balanced = TRUE) 
+#3: choose dims =13
+for (k in c(10,12,15,18)) {
+    obj <- FindNeighbors(AcneKeloid_Fibro, reduction="pca", dims=1:k) 
+    obj <- FindClusters(obj, resolution=0.3)
+    obj <- RunUMAP(obj, dims=1:k)
+    print(paste("dims 1:", k))
+    print(DimPlot(obj, label=TRUE))
+}
+
+Dim <- 1:13 #separate better than others
+AcneKeloid_Fibro <- RunUMAP(AcneKeloid_Fibro, dims = Dim)
+AcneKeloid_Fibro <- FindNeighbors(AcneKeloid_Fibro, dims = Dim)
+
+#Decide the resolution
+for (res in c(0.3, 0.5, 0.8, 1.0)) {
+    obj <- FindClusters(AcneKeloid_Fibro, resolution = res, verbose = FALSE)
+    obj <- RunUMAP(obj, dims = Dim, verbose = FALSE)  # ensure UMAP matches the chosen PCs
+    p <- DimPlot(obj, label = TRUE) + ggtitle(paste0("res = ", res))
+    print(p)
+} #choose res = 0.3
+AcneKeloid_Fibro <- FindClusters(AcneKeloid_Fibro, resolution = 0.3)
